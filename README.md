@@ -2,18 +2,18 @@ perl-reduce takes a perl program that causes a bug in perl itself,
 such as a core-dump in the perl interpreter, and tries to reduce the
 program to the minimum program needed to cause the bug.
 
-usage: perl-reduce
-	--keep			keep the temporary files
-	--quiet			don't print out lots of progress reports
-	--timeout 10		sets a timeout. default is 3 seconds.
-	--valgrind		run the script under valgrind. also increases timeout to 120 seconds.
-	--taint			run the script under "perl -T"
-	--perl perl-5.6.2	use "perl-5.6.2" as the name of perl, instead of plain "perl"
-	--stdout 'foo bar'	the bug is present if 'foo bar' is seen on stdout
-	--stderr 'foo bar'	the bug is present if 'foo bar' is seen on stderr
-	--signal 9		the bug is present if signal 9 is observed
-	--output foo.pl.out	leave the minimized output script here
-	--test			runs the tests I haven't put into a proper t/*.t file
+    usage: perl-reduce
+    	--keep			keep the temporary files
+    	--quiet			don't print out lots of progress reports
+    	--timeout 10		sets a timeout. default is 3 seconds.
+    	--valgrind		run the script under valgrind. also increases timeout to 120 seconds.
+    	--taint			run the script under "perl -T"
+    	--perl perl-5.6.2	use "perl-5.6.2" as the name of perl, instead of plain "perl"
+    	--stdout 'foo bar'	the bug is present if 'foo bar' is seen on stdout
+    	--stderr 'foo bar'	the bug is present if 'foo bar' is seen on stderr
+    	--signal 9		the bug is present if signal 9 is observed
+    	--output foo.pl.out	leave the minimized output script here
+    	--test			runs the tests I haven't put into a proper t/*.t file
 
 DISCLAIMER
 
