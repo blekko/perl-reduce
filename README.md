@@ -1,4 +1,160 @@
-perl-reduce
-===========
+perl-reduce takes a perl program that causes a bug in perl itself,
+such as a core-dump in the perl interpreter, and tries to reduce the
+program to the minimum program needed to cause the bug.
 
-A script for reducing scripts that crash perl to a minimum script that shows the bug
+usage: perl-reduce
+	--keep			keep the temporary files
+	--quiet			don't print out lots of progress reports
+	--timeout 10		sets a timeout. default is 3 seconds.
+	--valgrind		run the script under valgrind. also increases timeout to 120 seconds.
+	--taint			run the script under "perl -T"
+	--perl perl-5.6.2	use "perl-5.6.2" as the name of perl, instead of plain "perl"
+	--stdout 'foo bar'	the bug is present if 'foo bar' is seen on stdout
+	--stderr 'foo bar'	the bug is present if 'foo bar' is seen on stderr
+	--signal 9		the bug is present if signal 9 is observed
+	--output foo.pl.out	leave the minimized output script here
+	--test			runs the tests I haven't put into a proper t/*.t file
+
+DISCLAIMER
+
+This code was rushed to release in the hopes that other folks will
+find it useful, and generate feedback. See TODO for a few things that
+could use fixing.
+
+EXAMPLE
+
+Let's insert a fake bug into the commonly available utility ack:
+
+    % diff -c /usr/bin/ack ack.bug.pl
+    *** /usr/bin/ack	2010-09-02 21:53:04.000000000 -0700
+    --- ack.bug.pl	2013-06-17 17:14:54.000000000 -0700
+    ***************
+    *** 101,106 ****
+    --- 101,107 ----
+              $nmatches = App::Ack::print_matches( $iter, $opt );
+          }
+          close $App::Ack::fh;
+    +     print STDERR "THIS IS A BUG\n";
+          exit ($nmatches ? 0 : 1);
+      }
+     
+Now if we run "perl ack.bug.pl BUG a" we'll see THIS IS A BUG. (The
+extra command line args "BUG a" are there just to prevent ack from
+doing very much work while we're running it a bunch of times.)
+
+Let's find the minimum program that reproduces this bug, in around
+2 minutes or so:
+
+    % ./perl-reduce.pl --stderr 'THIS IS A BUG' -o ack.pl.final ./ack.pl BUG a 
+    ...
+    
+    % cat ack.pl.final
+    use strict 'refs';
+    MAIN: {
+        main( );
+    }
+    sub main {
+        print STDERR "THIS IS A BUG\n";
+    }
+
+It's more difficult to illustrate how perl-reduce works with real perl
+bugs because most of the known ones are fixed, and any unfixed ones I
+talked about may well be fixed when you read this in the future. But
+let's take an example where taint mode in perl-5.8.8 was sometimes
+causing a visible bug, depending on the exact layout of memory. The
+best way to make the bug happen frequently was to run the test script
+under valgrind, and look for this sort of complaint:
+
+    % perl -v
+    This is perl, v5.8.8 built for x86_64-linux-thread-multi
+    ...
+    
+    % cd examples/
+    % valgrind perl -T taintbug.pl file:taintbug.html
+    ...
+    ==12167== Invalid read of size 1
+    ==12167==    at 0x4A0738E: memmove (mc_replace_strmem.c:718)
+    ...
+    ==12167==  Address 0xb1c3e50 is 6,048 bytes inside a block of size 6,184 free'd
+    ==12167==    at 0x4A05D21: free (vg_replace_malloc.c:325)
+
+where we can see that we have a user-after-free bug in perl-5.8.8.
+Let's reduce it (in the amount of time that it takes to brew some
+jasmine tea, 4 minutes):
+
+    % perl-reduce.pl --valgrind --taint --stderr 'Invalid read of size' taintbug.pl -o taintbug.pl.out file:taintbug.html
+    Command run will be: taintbug.pl file:taintbug.html
+    taintbug.pl syntax OK
+    Round 1, begin.
+    Preprocessed and ended up with 24 lines
+    Preprocessed and ended up with 24 lines
+    Preprocessing finished after 2 loops
+    Round 1, test initial candidate
+    1 / 1
+    Round 1, 20 candidates.
+    20 / 20
+    Round 1, 20 valid candidates.
+    14 / 20
+    Round 1, 14 buggy candidates.
+     Lines to remove: 1,5,8,9,11,12,13,15,17,18,19,21,22,24
+    1 / 1
+    1 / 1
+    Round 1, hooray! The acceleration algorithm worked!
+    Round 2, begin.
+    Preprocessed and ended up with 9 lines
+    Preprocessed and ended up with 9 lines
+    Preprocessing finished after 2 loops
+    Round 2, test initial candidate
+    1 / 1
+    Round 2, 7 candidates.
+    7 / 7
+    Round 2, 7 valid candidates.
+    0 / 7
+    Round 2, 0 buggy candidates.
+    Round 2. No buggy candidates.
+    # No tests run!
+    
+    % cat taintbug.pl.out
+    use WWW::Mechanize;
+    use strict 'refs';
+    my $ua = 'WWW::Mechanize'->new;
+    my $url = shift @ARGV;
+    $ua->get($url);
+    my $pager = parsepage($ua);
+    sub parsepage {
+        my $so = join("\n", $ua->content =~ /(so\.addVariable\(\s*'.+?'\s*,\s*'.+?'\s*\)\s*;)/gm);
+        while ($so =~ /so\.addVariable\('([^']+)','([^']+)'\);/gm) { }
+    }
+
+BUGS
+
+perl-reduce uses B::Deparse as a preprocessor to get the script into a
+state where it can be somewhat successfully manipulated by regexes. If
+your script doesn't deparse correctly, you will be sad. There are
+probably also some odd cases in the output generated by B::Deparse
+that will break perl-reduce. If this last situation happens, look at
+the intermediate files (adding --keep if necessary), and send me a
+complaint (or a patch).
+
+Another bug that perl-reduce suffers from is that a script that
+generates the buggy signal in more than one place will probably end up
+not being reduced very far. Don't do that.
+
+REPOSITORY
+
+https://github.com/blekko/perl-reduce
+
+CREDITS
+
+perl-reduce was inspired by C-Reduce, http://embed.cs.utah.edu/creduce/
+
+LICENSE AND COPYRIGHT
+
+Copyright (C) 2013 blekko, inc. (Written by Greg Lindahl)
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+

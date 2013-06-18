@@ -1,0 +1,15 @@
+make a tmp dir, put temp files there, put --keep files there
+
+parallelize using Parallel::Fork or Parallel::Jobs or something.
+* N temp dirs. Only need to communicated back win/lose via exitval
+
+worked-out example on a large codebase that isn't a single file
+* ack is already combined up
+
+make end-to-end tests easier to run as actual tests
+* fake (ack)
+* real (dependent on perl version, alas... perlbrew instructions?)
+
+more unit tests
+
+package for CPAN
