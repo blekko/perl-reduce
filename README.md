@@ -2,7 +2,7 @@ perl-reduce takes a perl program that causes a bug in perl itself,
 such as a core-dump in the perl interpreter, and tries to reduce the
 program to the minimum program needed to cause the bug.
 
-    usage: perl-reduce
+    usage: perl-reduce <options> <program.pl> <args for program.pl>
     	--keep			keep the temporary files
     	--quiet			don't print out lots of progress reports
     	--timeout 10		sets a timeout. default is 3 seconds.
