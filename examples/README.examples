@@ -1,6 +1,6 @@
 perl-reduce.pl --stderr 'THIS IS A BUG' test1.pl -o test1.pl.out
 perl-reduce.pl --stderr 'THIS IS A BUG' test2.pl -o test2.pl.out
-perl-reduce.pl --stderr 'THIS IS A BUG' ack.withbug.pl -o ack.withbug.pl.out BUG a
+perl-reduce.pl --stderr 'THIS IS A BUG' -o ack.withbug.pl.out ack.withbug.pl BUG a
 
-perl-reduce.pl --valgrind --taint --stderr 'Invalid read of size' taintbug.pl -o taintbug.pl.out file:taintbug.html
+perl-reduce.pl --valgrind --taint --stderr 'Invalid read of size' -o taintbug.pl.out taintbug.pl file:taintbug.html
 
