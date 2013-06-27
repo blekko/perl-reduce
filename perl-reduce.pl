@@ -307,7 +307,7 @@ sub run_one
     die "Error running $command: $!" if $status == -1;
 
     my $signal = $status & 127;
-    die "Got signal=$signal running $command" if $signal;
+#    die "Got signal=$signal running $command" if $signal;
 
     my $ret = $status >> 8;
     $ret = -1 if $timed_out;
