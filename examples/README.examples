@@ -4,5 +4,8 @@ perl-reduce --signal 11 -o signal11.pl.out signal11.pl
 
 perl-reduce --stderr 'THIS IS A BUG' -o ack.withbug.pl.out ack.withbug.pl BUG a
 
+# only in 5.8.8
 perl-reduce --valgrind --taint --stderr 'Invalid read of size' -o taintbug.pl.out taintbug.pl file:taintbug.html
 
+# pre-5.14
+perl-reduce --signal 6 rt_117885.pl
