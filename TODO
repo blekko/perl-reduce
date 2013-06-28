@@ -1,15 +1,27 @@
+The current scheme of making candidates has N^2 memory usage. Keep
+just the names of the candidates ("10", "10 semi") and generate the
+candidates as they are needed.
+
+write out a final file for each round, in case the user gets tired and
+hits ^C then wants to restart
+
+explore using Deparse -fFILE to expand package files. generally this
+would be done after an initial run to minimize the test program.
+
+worked-out example on a large codebase that isn't a single file
+* ack is already combined up
+
 make a tmp dir, put temp files there, put --keep files there
 
 parallelize using Parallel::Fork or Parallel::Jobs or something.
 * N temp dirs. Only need to communicated back win/lose via exitval
 
-worked-out example on a large codebase that isn't a single file
-* ack is already combined up
-
 make end-to-end tests easier to run as actual tests
 * fake (ack)
 * real (dependent on perl version, alas... perlbrew instructions?)
+** a system for expressing which tests should work/fail for a given perl version?
 
 more unit tests
 
 package for CPAN
+
