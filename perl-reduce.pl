@@ -235,6 +235,12 @@ sub find_bug
         $fail = 1 if $opt{signal} && $signal == $opt{signal}; # signal != 0 case
         $fail = 1 if defined $opt{signal} && $opt{signal} == 0 && $signal;
 
+        if ( $signal && ! $fail )
+        {
+            warn "Saw signal=$signal"; # a different bug than what we were looking for. be loud.
+            keep_file( $c->{c}, "round-$round-got-signal-$signal" );
+        }
+
         if ( $fail )
         {
             push @buggy, $c;
