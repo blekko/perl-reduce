@@ -58,7 +58,7 @@ while ( 1 )
     if ( @$valid_candidates < 1 )
     {
         print "Round $round. No valid candidates.\n";
-        keep_file( $script, $opt{output}, nosuffix => 1 ) if defined $opt{output};
+        keep_file( $script, $opt{output}, nosuffix => 1 );
         exit 0;
     }
 
@@ -68,7 +68,7 @@ while ( 1 )
     if ( @$buggy < 1 )
     {
         print "Round $round. No buggy candidates.\n";
-        keep_file( $script, $opt{output}, nosuffix => 1 ) if defined $opt{output};
+        keep_file( $script, $opt{output}, nosuffix => 1 );
         exit 0;
     }
 
@@ -84,7 +84,7 @@ while ( 1 )
     else
     {
         print "Acceleration failed. Quitting because I do not know how to proceed non-accelerated.\n";
-        keep_file( $script, $opt{output}, nosuffix => 1 ) if defined $opt{output};
+        keep_file( $script, $opt{output}, nosuffix => 1 );
         exit 1;
     }
 
@@ -508,16 +508,21 @@ sub keep_file
 {
     my ( $data, $name, %opts ) = @_;
 
-    $suffix = 0 if ! defined $suffix;
+    if ( ! defined $name )
+    {
+        print "$data\n";
+        return;
+    }
 
     if ( ! defined $opts{nosuffix} )
     {
+        $suffix = 0 if ! defined $suffix;
         $name .= " $suffix";
         $suffix++;
     }
     $name =~ s/ /-/g;
-
     open my $fd, ">", $name or die "can't open $name: $!";
+
     print $fd "$data\n";
     close $fd or die "error closing $name: $!";
 }
