@@ -527,7 +527,7 @@ sub keep_file
 
     if ( ! defined $name )
     {
-        print "$data\n";
+        print "\nFinal candidate:\n\n$data\n\n";
         return;
     }
 
