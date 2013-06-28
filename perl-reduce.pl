@@ -47,9 +47,11 @@ while ( 1 )
     $script = preprocess_loop( $script );
     keep_file( $script, "round $round initial candidate", nosuffix => 1 ) if $opt{keep};
 
-    print "Round $round, test initial candidate\n";
+    print "Round $round, syntax test initial candidate\n";
     my $initial = [ { c => $script, line => 999_999 } ];
     die "round $round initial candidate has invalid syntax" if ! @{syntax_check_candidates( $initial )};
+    print "Round $round, bug test initial candidate\n";
+    die "round $round initial candidate does not show the bug" if ! @{find_bug( $initial, \@ARGV )};
 
     my $candidates = generate_candidates( $script );
     print "Round $round, ", scalar @$candidates, " candidates.\n";
