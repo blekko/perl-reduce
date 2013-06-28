@@ -35,6 +35,8 @@ my $file = shift || die "usage: perl-reduce script args ...";
 
 print "Command run will be: $file ", join( ' ', @ARGV ), "\n";
 
+$ENV{LIBC_FATAL_STDERR_} = 1; # damn you glibc
+
 my $script = deparse_script( $file );
 
 my $round = 1;
