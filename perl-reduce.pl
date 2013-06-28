@@ -433,10 +433,23 @@ sub preprocess
 
     my $first_strict = 1;
     my $last_was_package = 0;
+    my $in_data = 0;
 
     foreach my $l ( split /\n/, $script )
     {
-#       print "Doing line <$l>\n";
+        if ( $in_data )
+        {
+            push @ret, $l;
+            next;
+        }
+
+        if ( $l =~ /^__DATA__$/ )
+        {
+            $in_data = 1;
+            push @ret, $l;
+            next;
+        }
+
         # discard eol spaces
         $l =~ s/ \s+ $ //x;
 
@@ -572,8 +585,6 @@ sub system_with_timeout
 
 sub run_tests
 {
-    use Test::More qw( no_plan );
-
     my @preprocess_tests = (
                             [ "package  Foo;    \n package Bar;\nfoo\n", " package Bar;\nfoo", "package" ],
                             [ "package  Foo;    \n package Bar;\n", "", "package end" ],
@@ -586,7 +597,10 @@ sub run_tests
                             [ "foo {\n;\n }", "foo { ; }", "empty block semicolon" ],
                             [ "if ( \$sort_sub ) { } else {\n}", "if ( \$sort_sub ) { } else { }", "if then else empty block" ],
                             [ "do {\n  qr/\$regex/\n  }", "do {\n  qr/\$regex/\n  }", "block with single non-semi statement" ],
+                            [ "foo;\n__DATA__\nexactly this  \nand\n this ", "foo;\n__DATA__\nexactly this  \nand\n this ", "__DATA__ section" ],
                            );
+
+    use Test::More tests => 12;
 
     foreach my $t ( @preprocess_tests )
     {
